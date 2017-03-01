@@ -1,0 +1,148 @@
+%% genellipsis.dtx
+%% Copyright 2017 F. Pijcke
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is F. Pijcke.
+%
+% This work consists of the files genellipsis.dtx and genellipsis.tex
+
+\documentclass{ltxdoc}
+
+\usepackage{genellipsis}
+\usepackage{booktabs}
+
+\newcommand{\example}[1]{
+  \begin{center}
+    \begin{tabular}{p{0.42\textwidth} p{0.42\textwidth}}
+      \toprule
+      \texttt{\detokenize{#1}} & #1 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+}
+
+\title{The \textsf{genellipsis} package}
+\author{Fabian Pijcke}
+\date{2017/03/01 --- v0.1}
+
+\begin{document}
+\DeleteShortVerb{\|} % ltxdoc interferes with genellipsis.
+
+\maketitle
+
+\begin{abstract}
+  This package addresses the need to regularly type ellipses. The default
+  configuration produces ellipses such as $\lip{1, 2; n}$, including
+  \texttt{\textbackslash linebreak}s after each comma and is as simple to use
+  as \texttt{\textbackslash lip\{1, 2; n\}}. An useful feature is that
+  \texttt{\textbackslash lip} takes an optional command to customize each value
+  in the ellipsis.
+\end{abstract}
+
+\section{Introduction}
+
+Documents about mathematics often make use of set extensions such as $\{\lip{1,
+2; n}\}$, or maybe $\{\lip |\mathbf{h}(A_\v^2)| {1, 2; n}\}$. To produce such
+sets the following commands are typically used:
+
+\begin{verbatim}
+$\{1, 2, \dots, n\}$
+\end{verbatim}
+
+This formulation suffers from the drawback that it is unbreakable, resulting in
+frequent Overful \texttt{\textbackslash hbox}es problems. One way to circumvent
+this is to add \texttt{\textbackslash allowbreak} commands after each comma,
+which is not really practical.
+
+The \texttt{\textbackslash lip} command is mainly a convenience command that
+eases typesetting such lists of values separated by some token (a comma by
+default).  As its name suggests, it also comes with higher order separators
+which are dots by default.  More interrestingly, it also allows to apply a
+macro to each element. Hence the second example given above was produced using:
+
+\begin{verbatim}
+$\{\lip |\mathbf{h}(A_\v^2)| {1, 2; n}$
+\end{verbatim}
+
+Note that the command makes use of some argument \v, and that it is not
+possible to nest calls to the \texttt{\textbackslash lip} command. A last
+common use of the \texttt{\textbackslash lip} command is to produce a list of
+names with a particular style:
+
+\begin{verbatim}
+$\lip |\mystyle{\v}| {List, Of, Names}$
+\end{verbatim}
+
+\section{The \texttt{\textbackslash lip} command}
+
+In its simplest form, \texttt{\textbackslash lip} takes a list of
+semicolon-separated lists of comma-separated values. Basically this just means
+that semicolons are replaced with dots.
+
+\example{$\lip{1, 2; n}$}
+
+\example{$\lip{a, b; g, h; z}$}
+
+One may use the \texttt{\textbackslash lip} command in text mode.
+
+\example{\lip{A, B, C}}
+
+It is also possible to provide a command that will transform each of the
+values. The command has to be given just before the values forming the
+ellipsis, between two vertical bars. This command should use the \verb!\v! as
+the value being stylized. Note that \verb!\v! is an alias for \verb!\#\#1!, but
+the latter should not be used as the interface may evolve and not accept this
+form anymore.
+
+\example{$\lip |A_\v| {1, 2; n}$}
+
+\example{$\lip |X| {1, 2, 3}$}
+
+\section{The options}
+
+The following options may be set globally using the \texttt{\textbackslash
+lipsetdefault} command, or locally within the \texttt{\textbackslash lip}
+command, as shown in the examples.
+
+\subsection{allowbreak (= true)}
+
+You can disable this feature using \texttt{\textbackslash
+lipsetdefault{allowbreak=false}} and then use \texttt{\textbackslash
+lip[allowbreak]} when you want ellipses to be breakable.
+
+\example{$\lip[allowbreak=false] |longlongthing| {1, 2, 3, 4, 5}$}
+
+\example{$\lip[allowbreak] |longlongthing| {1, 2, 3, 4, 5}$}
+
+\subsection{sep (= \texttt{,})}
+
+Sets the separator between values.
+
+\example{$\lip[sep=\cup] {A, B; K}$}
+
+\subsection{lip (= \texttt{\dots})}
+
+Sets the ellipsis command(s).
+
+\example{$\lip[lip=\cdots] {a, b; c, d}$}
+
+\subsection{startlip and endlip (= false)}
+
+Makes the sequence start or/and end with an ellipsis.
+
+\example{$\lip[startlip] {n, n+1}$}
+
+\example{$\lip[endlip] {1, 2}$}
+
+\example{$\lip[startlip, endlip, lip=\cdots] {m, m+1; n-1, n, n+1}$}
+
+\end{document}

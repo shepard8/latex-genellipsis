@@ -1,0 +1,23 @@
+This is the README file for the genellipsis package.
+Author: Fabian Pijcke
+E-mail: fabian@pijcke.net
+Comments and suggestions are welcome.
+Date: March 2017
+Version: 0.1
+
+Genellipsis addresses the need to regularly type ellipses. It defines the
+command \lip which can be used to produce series as `1, 2, ..., n` with
+`\lip{1, 2; n}`. Each comma is followed by \allowbreak by default, and it is
+possible to apply a command on the values, for example `\lip |A_\v| {1, 2; n}`
+produces `A_1, A_2, ..., A_n`.
+
+Other features include customization of separators and ellipsis, starting and
+ending ellipses, and removing the allowbreak after commas.
+
+The files in this distribution are:
+
+genellipsis.sty     - implementation
+genellipsis.tex     - documentation sources
+genellipsis.pdf     - documentation
+
+Licensing of this package is covered by LPPL.
