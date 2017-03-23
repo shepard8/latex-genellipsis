@@ -13,18 +13,23 @@
 % 
 % The Current Maintainer of this work is F. Pijcke.
 %
-% This work consists of the files genellipsis.dtx and genellipsis.tex
+% This work consists of the files genellipsis.sty and genellipsis.tex
 
 \documentclass{ltxdoc}
 
 \usepackage{genellipsis}
 \usepackage{booktabs}
 
+\makeatletter
+\newcommand{\customtt}{\begingroup\catcode`\#=12\relax\@customtt}
+\newcommand{\@customtt}[1]{\endgroup\texttt{\detokenize{#1}}}
+\makeatother
+
 \newcommand{\example}[1]{
   \begin{center}
     \begin{tabular}{p{0.42\textwidth} p{0.42\textwidth}}
       \toprule
-      \texttt{\detokenize{#1}} & #1 \\
+      \customtt{#1} & #1 \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -41,9 +46,9 @@
 
 \begin{abstract}
   This package addresses the need to regularly type ellipses. The default
-  configuration produces ellipses such as $\lip{1, 2; n}$, including
+  configuration produces ellipses such as $\lip{1, 2,, n}$, including
   \texttt{\textbackslash linebreak}s after each comma and is as simple to use
-  as \texttt{\textbackslash lip\{1, 2; n\}}. An useful feature is that
+  as \texttt{\textbackslash lip\{1, 2,, n\}}. An useful feature is that
   \texttt{\textbackslash lip} takes an optional command to customize each value
   in the ellipsis.
 \end{abstract}
@@ -51,7 +56,7 @@
 \section{Introduction}
 
 Documents about mathematics often make use of set extensions such as $\{\lip{1,
-2; n}\}$, or maybe $\{\lip |\mathbf{h}(A_\v^2)| {1, 2; n}\}$. To produce such
+2,, n}\}$, or maybe $\{\lip |\mathbf{h}(A_#1^2)| {1, 2,, n}\}$. To produce such
 sets the following commands are typically used:
 
 \begin{verbatim}
@@ -70,50 +75,59 @@ which are dots by default.  More interrestingly, it also allows to apply a
 macro to each element. Hence the second example given above was produced using:
 
 \begin{verbatim}
-$\{\lip |\mathbf{h}(A_\v^2)| {1, 2; n}$
+$\{\lip |\mathbf{h}(A_#1^2)| {1, 2,, n}$
 \end{verbatim}
 
-Note that the command makes use of some argument \v, and that it is not
-possible to nest calls to the \texttt{\textbackslash lip} command. A last
-common use of the \texttt{\textbackslash lip} command is to produce a list of
-names with a particular style:
+Note that the command makes use of some argument \verb!#1!, and that nesting calls to \texttt{\textbackslash sip} needs some extra care. Each inner level needs doubling the number of hash signs, and extra braces are needed so that pipes are parsed correctly. For example:
+
+\[\lip[sep=\cup] |{\{\lip[sep={,}] |a_##1| {1, 2,, #1}\}}| {5, 6, 7}\]
 
 \begin{verbatim}
-$\lip |\mystyle{\v}| {List, Of, Names}$
+\[\lip[sep=\cup] |{\{\lip[sep={,}] |a_##1| {1, 2,, #1}\}}| {5, 6, 7}\]
 \end{verbatim}
 
 \section{The \texttt{\textbackslash lip} command}
 
 In its simplest form, \texttt{\textbackslash lip} takes a list of
-semicolon-separated lists of comma-separated values. Basically this just means
-that semicolons are replaced with dots.
+comma-separated values. Each empty value will be replaced with an ellipsis (by
+default dots, see Section~\ref{sec:lip}).
 
 \example{$\lip{1, 2, 3}$}
 
-\example{$\lip{1, 2; n}$}
+\example{$\lip{1, 2,, n}$}
 
-\example{$\lip{a, b; g, h; z}$}
+\example{$\lip{a, b,, g, h,, z}$}
+
+\example{$\lip{, 1, 2,, n}$}
+
+\example{$\lip{1, 2,, n,}$}
+
+\example{$\lip{, -1, 0, 1, }$}
 
 One may use the \texttt{\textbackslash lip} command in text mode.
 
 \example{\lip{A, B, C}}
 
 It is also possible to provide a command that will transform each of the
-values. The command has to be given just before the values forming the
-ellipsis, between two vertical bars. This command should use the \verb!\v! as
-the value being stylized. Note that \verb!\v! is an alias for \verb!\#\#1!, but
-the latter should not be used as the interface may evolve and not accept this
-form anymore.
+values. The command has to be given just before the values, between two
+vertical bars. This command should use the \verb!#1!  as the value being
+stylized.
 
-\example{$\lip |A_\v| {1, 2; n}$}
+\begin{center}
+  \begin{tabular}{p{0.42\textwidth} p{0.42\textwidth}}
+    \toprule
+    \customtt{$\lip |A_#1| {1, 2,, n}} & $\lip |A_#1| {1, 2,, n}$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
 
 \example{$\lip |X| {1, 2, 3}$}
 
 \section{The options}
 
-The following options may be set globally using the \texttt{\textbackslash
-lipsetdefault} command, or locally within the \texttt{\textbackslash lip}
-command, as shown in the examples.
+The following options may be set for the whole \TeX\ group using the
+\texttt{\textbackslash lipsetdefault} command, or locally within the
+\texttt{\textbackslash lip} command, as shown in the examples.
 
 \subsection{allowbreak (= true)}
 
@@ -129,22 +143,12 @@ lip[allowbreak]} when you want ellipses to be breakable.
 
 Sets the separator between values.
 
-\example{$\lip[sep=\cup] {A, B; K}$}
+\example{$\lip[sep=\cup] {A, B,, K}$}
 
-\subsection{lip (= \texttt{\dots})}
+\subsection{lip (= \texttt{\dots})} \label{sec:lip}
 
 Sets the ellipsis command(s).
 
-\example{$\lip[lip=\cdots] {a, b; c, d}$}
-
-\subsection{startlip and endlip (= false)}
-
-Makes the sequence start or/and end with an ellipsis.
-
-\example{$\lip[startlip] {n, n+1}$}
-
-\example{$\lip[endlip] {1, 2}$}
-
-\example{$\lip[startlip, endlip, lip=\cdots] {m, m+1; n-1, n, n+1}$}
+\example{$\lip[lip=\cdots] {a, b,, c, d}$}
 
 \end{document}

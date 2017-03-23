@@ -20,47 +20,41 @@
 \RequirePackage{expl3}[2013/05/26]
 \RequirePackage{xparse}[2013/05/26]
 
-\ProvidesExplPackage{genellipsis}{2017/03/01}{0.1}{Generates ellipses}
+\ProvidesExplPackage{genellipsis}{2017/03/23}{0.2}{Generates ellipses}
 
 \ExplSyntaxOn
 
 \keys_define:nn { genellipsis } {
   allowbreak .bool_set:N = \l_lip_ab_bool,
-  startlip .bool_set:N = \l_lip_start_bool,
-  endlip .bool_set:N = \l_lip_end_bool,
-  sep .code:n = { \def\lipsep{#1} },
-  lip .code:n = { \def\liplip{#1} }
-}
-
-\keys_set:nn { genellipsis } {
-  allowbreak,
-  sep = {,},
-  lip = {\dots}
+  sep .tl_set:N = \l_lip_sep_tl,
+  lip .tl_set:N = \l_lip_lip_tl
 }
 
 \NewDocumentCommand \lipsetdefault { m } {
   \keys_set:nn { genellipsis } { #1 }
 }
+\lipsetdefault{allowbreak, sep={,}, lip={\dots}}
 
 \cs_new:Nn \__lip_sep: {
-  \lipsep \bool_if:NTF \l_lip_ab_bool {\allowbreak} {}
+  \tl_use:N \l_lip_sep_tl
+  \bool_if:NTF \l_lip_ab_bool {\allowbreak} {}
 }
 
-\seq_new:N \l_lip_sub_seq
-\cs_new_protected:Nn \__lip_simple:nn {
-  \seq_set_split:Nnn \l_lip_sub_seq {,} {#2}
-  \seq_set_map:NNn \l_lip_sub_seq \l_lip_sub_seq {\exp_not:n {\def\v{##1} #1}}
-  \seq_use:Nn \l_lip_sub_seq {\__lip_sep:}
-}
-
-\seq_new:N \l_lip_subs_seq
-\NewDocumentCommand \lip { O{} D||{\v} m } {
+\seq_new:N \l_lip_values_seq
+\NewDocumentCommand \lip { O{} d|| m } {
+  \group_begin:
   \keys_set:nn { genellipsis } { #1 }
-  \seq_set_split:Nnn \l_lip_subs_seq {;} {#3}
-  \seq_set_map:NNn \l_lip_subs_seq \l_lip_subs_seq {\exp_not:n {\__lip_simple:nn{#2}{##1}}}
-  \bool_if:NTF \l_lip_start_bool { \liplip \__lip_sep: } {}
-  \seq_use:Nn \l_lip_subs_seq { \__lip_sep: \liplip \__lip_sep: }
-  \bool_if:NTF \l_lip_end_bool { \__lip_sep: \liplip } {}
+  \IfNoValueTF{#2}
+  { \cs_set_protected:Nn \__shepi_inner_process:n {##1} }
+  { \cs_set_protected:Nn \__shepi_inner_process:n {#2} }
+  \seq_set_split:Nnn \l_lip_values_seq {,} {#3}
+  \seq_set_map:NNn \l_lip_values_seq \l_lip_values_seq { \exp_not:n {
+    \str_if_eq:nnTF {} {##1}
+    { \tl_use:N \l_lip_lip_tl }
+    { \__shepi_inner_process:n {##1} }
+  } }
+  \seq_use:Nn \l_lip_values_seq { \__lip_sep: }
+  \group_end:
 }
 
 \ExplSyntaxOff
